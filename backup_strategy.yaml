@@ -1,0 +1,31 @@
+# Netics Agency - Backup Strategy Template
+# This file defines the RETENTION and ENCRYPTION policies for Proxmox Backup Server (PBS)
+
+datastore: production-backups
+  path: /mnt/datastore/production-backups
+  
+  # 🔒 GC / Prune Schedule
+  prune-schedule: daily
+  
+  # 📅 Retention Policy (Grandfather-Father-Son)
+  keep-last: 3      # Keep the last 3 backups (hourly protection)
+  keep-daily: 7     # Keep one backup per day for a week
+  keep-weekly: 4    # Keep one backup per week for a month
+  keep-monthly: 12  # Keep one backup per month for a year
+  keep-yearly: 5    # Keep one backup per year for 5 years
+  
+  # 🛡️ Encryption
+  encryption:
+     mode: encrypt
+     key-file: /etc/proxmox-backup/encryption-key.json
+     fingerprint: a1:b2:c3:d4... (Replace with actual fingerprint)
+
+# 🔄 Verification Schedule
+verify-schedule:
+  schedule: "sun 02:00"  # Verify all backups every Sunday at 2AM
+  
+# ⚠️ Sync Jobs (Offsite Replication)
+sync-job: offsite-cloud
+  remote: netics-cloud-pbs
+  remote-store: offsite-01
+  schedule: "daily 04:00"
