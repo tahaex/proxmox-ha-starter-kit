@@ -1,8 +1,6 @@
 # Proxmox High-Availability Starter Kit
-> **Standardized Infrastructure Configurations by [Netics Agency](https://netics.agency)**
+> **Standardized Infrastructure Configurations & Automation Scripts**
 > *Last Verified: 2026-02-02*
-
-![Netics Banner](assets/netics_banner.png)
 
 ## Overview
 This repository contains the **production-grade configuration templates** and **automation scripts** we use at Netics Agency to deploy robust, self-healing on-premise infrastructure.
