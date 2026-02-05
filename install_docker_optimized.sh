@@ -27,11 +27,21 @@ apt-get install -y ca-certificates curl gnupg lsb-release
 # 3. Add Official Docker Repo
 echo -e "${GREEN}[2/5] Adding Docker GPG key & repository...${NC}"
 install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+# Detect OS
+. /etc/os-release
+DISTRO=$ID
+
+if [ "$DISTRO" != "debian" ] && [ "$DISTRO" != "ubuntu" ]; then
+    echo "Unsupported distribution: $DISTRO"
+    exit 1
+fi
+
+curl -fsSL https://download.docker.com/linux/$DISTRO/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 chmod a+r /etc/apt/keyrings/docker.gpg
 
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/$DISTRO \
+  $VERSION_CODENAME stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
 
 apt-get update
 
