@@ -266,5 +266,5 @@ MIT License - Free for personal and commercial use.
 
 <p align="center">
   <strong>Maintained by Netics Engineering Team</strong><br>
-  <a href="https://netics.agency">netics.agency</a>
+  <a href="https://netics.fr">netics.fr</a>
 </p>
