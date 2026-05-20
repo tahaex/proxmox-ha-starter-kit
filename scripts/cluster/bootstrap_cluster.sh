@@ -27,12 +27,12 @@ run() {
   if [ "$DRY_RUN" = true ]; then
     echo "[DRY-RUN] $*"
   else
-    eval "$*"
+    "$@"
   fi
 }
 
 echo "== Bootstrap Proxmox Cluster =="
-run "pvecm create '$CLUSTER_NAME' -bindnet0_addr '$BINDNET'"
-run "pvecm status"
+run pvecm create "$CLUSTER_NAME" -bindnet0_addr "$BINDNET"
+run pvecm status
 
 echo "Cluster bootstrap completed."

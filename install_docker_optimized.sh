@@ -44,7 +44,7 @@ run() {
   if [ "$DRY_RUN" = true ]; then
     echo -e "${YELLOW}[DRY-RUN]${NC} $*"
   else
-    eval "$*"
+    "$@"
   fi
 }
 
@@ -56,21 +56,29 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 echo -e "${GREEN}[1/6] Updating system packages...${NC}"
-run "apt-get update"
-run "apt-get upgrade -y"
-run "apt-get install -y ca-certificates curl gnupg lsb-release"
+run apt-get update
+run apt-get upgrade -y
+run apt-get install -y ca-certificates curl gnupg lsb-release
 
 echo -e "${GREEN}[2/6] Adding Docker repository...${NC}"
-run "install -m 0755 -d /etc/apt/keyrings"
-run "curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg"
-run "chmod a+r /etc/apt/keyrings/docker.gpg"
-# shellcheck disable=SC1091
+run install -m 0755 -d /etc/apt/keyrings
+if [ "$DRY_RUN" = true ]; then
+  echo -e "${YELLOW}[DRY-RUN]${NC} curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg"
+else
+  curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+fi
+run chmod a+r /etc/apt/keyrings/docker.gpg
+# shellcheck disable=SC1091 # /etc/os-release is a runtime system file not available in static analysis inputs.
 CODENAME="$(. /etc/os-release && echo "$VERSION_CODENAME")"
-run "printf '%s\n' 'deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian ${CODENAME} stable' > /etc/apt/sources.list.d/docker.list"
-run "apt-get update"
+if [ "$DRY_RUN" = true ]; then
+  echo -e "${YELLOW}[DRY-RUN]${NC} write /etc/apt/sources.list.d/docker.list"
+else
+  printf '%s\n' "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian ${CODENAME} stable" > /etc/apt/sources.list.d/docker.list
+fi
+run apt-get update
 
 echo -e "${GREEN}[3/6] Installing Docker Engine + Compose...${NC}"
-run "apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin"
+run apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 echo -e "${GREEN}[4/6] Applying daemon config with rollback safety...${NC}"
 if [ "$DRY_RUN" = false ] && [ -f /etc/docker/daemon.json ]; then
@@ -95,24 +103,24 @@ cat > /tmp/daemon.json <<'JSON'
 }
 JSON
 
-run "install -m 0644 /tmp/daemon.json /etc/docker/daemon.json"
+run install -m 0644 /tmp/daemon.json /etc/docker/daemon.json
 
 echo -e "${GREEN}[5/6] Installing profile packages...${NC}"
 case "$PROFILE" in
   default)
-    run "apt-get install -y htop jq"
+    run apt-get install -y htop jq
     ;;
   ai)
-    run "apt-get install -y htop jq nvtop"
+    run apt-get install -y htop jq nvtop
     ;;
   media)
-    run "apt-get install -y htop jq ffmpeg"
+    run apt-get install -y htop jq ffmpeg
     ;;
   dev)
-    run "apt-get install -y htop jq git make"
+    run apt-get install -y htop jq git make
     ;;
   db)
-    run "apt-get install -y htop jq iotop"
+    run apt-get install -y htop jq iotop
     ;;
   *)
     echo "Unsupported profile: $PROFILE"
@@ -121,8 +129,8 @@ case "$PROFILE" in
 esac
 
 echo -e "${GREEN}[6/6] Enabling Docker service...${NC}"
-run "systemctl enable docker"
-run "systemctl restart docker"
+run systemctl enable docker
+run systemctl restart docker
 
 echo -e "${BLUE}[Netics] Docker profile '${PROFILE}' installed successfully.${NC}"
 if [ "$DRY_RUN" = false ]; then
