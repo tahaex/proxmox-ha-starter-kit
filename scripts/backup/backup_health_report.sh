@@ -12,7 +12,11 @@ for v in "$PRUNE_OK" "$VERIFY_OK" "$OFFSITE_OK"; do
   fi
 done
 
-# Weighting rationale: verification is highest impact for recoverability confidence.
+# Weighting rationale:
+# - Verify (40): strongest signal that backups are restorable.
+# - Prune (30): controls retention hygiene and storage risk.
+# - Offsite (30): validates resilience against site-level failure.
+# Adjust these weights to match your RPO/RTO objectives.
 score=$(( PRUNE_OK * 30 + VERIFY_OK * 40 + OFFSITE_OK * 30 ))
 
 echo "== Backup Health Report =="

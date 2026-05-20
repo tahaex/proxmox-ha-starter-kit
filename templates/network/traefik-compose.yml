@@ -9,4 +9,5 @@ services:
       - "80:80"
       - "443:443"
     volumes:
+      # Prefer a Docker socket proxy in production instead of direct socket mount.
       - /var/run/docker.sock:/var/run/docker.sock:ro

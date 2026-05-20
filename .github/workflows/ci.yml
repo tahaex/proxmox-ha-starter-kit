@@ -11,6 +11,7 @@ jobs:
   shell-lint:
     runs-on: ubuntu-latest
     steps:
+      # actions/checkout v4 pinned by commit SHA for supply-chain safety.
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - name: Install shellcheck
         run: sudo apt-get update && sudo apt-get install -y shellcheck
@@ -21,6 +22,7 @@ jobs:
   yaml-validate:
     runs-on: ubuntu-latest
     steps:
+      # actions/checkout v4 pinned by commit SHA for supply-chain safety.
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - name: Install yq
         run: sudo snap install yq

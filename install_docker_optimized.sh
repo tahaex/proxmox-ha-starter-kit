@@ -87,7 +87,7 @@ fi
 
 TMP_DAEMON_FILE="/etc/docker/daemon.json.tmp"
 # overlay2 is set explicitly for consistent behavior across supported hosts.
-cat > "$TMP_DAEMON_FILE" <<'JSON'
+cat > "$TMP_DAEMON_FILE" <<'CONFIG'
 {
   "log-driver": "json-file",
   "log-opts": {
@@ -103,7 +103,7 @@ cat > "$TMP_DAEMON_FILE" <<'JSON'
   "storage-driver": "overlay2",
   "ipv6": false
 }
-JSON
+CONFIG
 
 run install -m 0644 "$TMP_DAEMON_FILE" /etc/docker/daemon.json
 if [ "$DRY_RUN" = false ]; then
