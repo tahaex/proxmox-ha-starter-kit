@@ -1,0 +1,7 @@
+services:
+  restic:
+    image: restic/restic:latest
+    environment:
+      - RESTIC_REPOSITORY=replace-me
+      - RESTIC_PASSWORD=replace-me
+    command: snapshots

@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PRUNE_OK="${1:-1}"
+VERIFY_OK="${2:-1}"
+OFFSITE_OK="${3:-1}"
+
+score=$(( PRUNE_OK * 30 + VERIFY_OK * 40 + OFFSITE_OK * 30 ))
+
+echo "== Backup Health Report =="
+echo "Prune Status: $PRUNE_OK"
+echo "Verify Status: $VERIFY_OK"
+echo "Offsite Sync Status: $OFFSITE_OK"
+echo "Health Score: ${score}/100"
+
+if [ "$score" -ge 80 ]; then
+  echo "Status: HEALTHY"
+else
+  echo "Status: ATTENTION REQUIRED"
+fi

@@ -1,0 +1,17 @@
+groups:
+  - name: proxmox-ha
+    rules:
+      - alert: ProxmoxNodeDown
+        expr: up{job="proxmox"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Proxmox node down"
+      - alert: BackupVerificationFailure
+        expr: pbs_verify_last_success_timestamp_seconds < time() - 86400
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PBS verify appears stale"

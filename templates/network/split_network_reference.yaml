@@ -1,0 +1,13 @@
+networks:
+  management:
+    cidr: 10.10.10.0/24
+    vlan: 10
+  storage:
+    cidr: 10.20.20.0/24
+    vlan: 20
+  vm_traffic:
+    cidr: 10.30.30.0/24
+    vlan: 30
+recommendations:
+  - Isolate storage traffic from management plane
+  - Enable jumbo frames on storage VLAN only if end-to-end validated

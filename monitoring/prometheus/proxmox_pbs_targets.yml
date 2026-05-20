@@ -1,0 +1,7 @@
+scrape_configs:
+  - job_name: proxmox
+    static_configs:
+      - targets: ["pve1:9221", "pve2:9221", "pve3:9221"]
+  - job_name: proxmox_backup_server
+    static_configs:
+      - targets: ["pbs1:8007"]

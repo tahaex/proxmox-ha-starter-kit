@@ -1,0 +1,13 @@
+baseline:
+  os_updates: auto
+  ssh:
+    password_authentication: false
+    root_login: prohibit-password
+  firewall:
+    enabled: true
+    default_inbound: deny
+  logging:
+    centralize: true
+  backup:
+    enabled: true
+    frequency: daily

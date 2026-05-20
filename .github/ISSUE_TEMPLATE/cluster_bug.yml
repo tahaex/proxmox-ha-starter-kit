@@ -1,0 +1,17 @@
+name: Cluster bug
+description: Report a cluster/bootstrap/failover issue
+title: "bug(cluster): "
+labels: [bug]
+body:
+  - type: input
+    id: pve_version
+    attributes:
+      label: Proxmox VE version
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Issue details
+    validations:
+      required: true

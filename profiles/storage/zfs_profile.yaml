@@ -1,0 +1,12 @@
+profile: zfs-replication
+requirements:
+  nodes: 2
+  storage_type: local-zfs
+settings:
+  replication_schedule: "*/15"
+  snapshots:
+    keep_hourly: 24
+    keep_daily: 14
+notes:
+  - Validate snapshot retention against available disk capacity
+  - Use SSD cache if available for VM-heavy workloads

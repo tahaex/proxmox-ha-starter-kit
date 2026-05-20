@@ -1,0 +1,15 @@
+name: Restore failure
+description: Report restore-test or PBS recovery failure
+title: "bug(restore): "
+labels: [bug, backup]
+body:
+  - type: input
+    id: snapshot
+    attributes:
+      label: Snapshot ID
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+    validations:
+      required: true

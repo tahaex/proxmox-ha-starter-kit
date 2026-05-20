@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  shell-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - name: Lint shell scripts
+        run: |
+          find . -type f -name "*.sh" -print0 | xargs -0 -r shellcheck
+
+  yaml-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install yq
+        run: sudo snap install yq
+      - name: Validate YAML files
+        run: |
+          find . -type f \( -name "*.yml" -o -name "*.yaml" \) | while read -r f; do
+            yq e '.' "$f" >/dev/null
+          done

@@ -1,0 +1,13 @@
+presets:
+  homelab:
+    rpo: 24h
+    rto: 8h
+    backup_frequency: daily
+  smb:
+    rpo: 4h
+    rto: 2h
+    backup_frequency: every-4-hours
+  production:
+    rpo: 1h
+    rto: 30m
+    backup_frequency: hourly

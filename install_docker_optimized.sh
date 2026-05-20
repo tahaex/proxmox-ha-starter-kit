@@ -1,47 +1,83 @@
-#!/bin/bash
-# 🐳 Netics Agency - Optimized Docker Installer for Proxmox LXC
-# Verified on Debian 12 (Bookworm) and Ubuntu 22.04/24.04
-# 
-# Usage: ./install_docker_optimized.sh
+#!/usr/bin/env bash
+# 🐳 Netics Agency - Modular Docker Installer for Proxmox LXC
+# Verified on Debian 12 and Ubuntu 22.04/24.04
 
-set -e
+set -euo pipefail
 
-# Colors
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+YELLOW='\033[1;33m'
+NC='\033[0m'
 
-echo -e "${BLUE}[Netics] Starting production-grade Docker installation...${NC}"
+PROFILE="default"
+DRY_RUN=false
 
-# 1. Prerequisite Check
-if [ "$EUID" -ne 0 ]; then 
+usage() {
+  cat <<USAGE
+Usage: ./install_docker_optimized.sh [--profile default|ai|media|dev|db] [--dry-run]
+USAGE
+}
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --profile)
+      PROFILE="$2"
+      shift 2
+      ;;
+    --dry-run)
+      DRY_RUN=true
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1"
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+run() {
+  if [ "$DRY_RUN" = true ]; then
+    echo -e "${YELLOW}[DRY-RUN]${NC} $*"
+  else
+    eval "$*"
+  fi
+}
+
+echo -e "${BLUE}[Netics] Starting modular Docker installation (profile: ${PROFILE})...${NC}"
+
+if [ "$EUID" -ne 0 ]; then
   echo "Please run as root"
   exit 1
 fi
 
-# 2. Update System & Install Dependencies
-echo -e "${GREEN}[1/5] Updating system packages...${NC}"
-apt-get update && apt-get upgrade -y
-apt-get install -y ca-certificates curl gnupg lsb-release
+echo -e "${GREEN}[1/6] Updating system packages...${NC}"
+run "apt-get update"
+run "apt-get upgrade -y"
+run "apt-get install -y ca-certificates curl gnupg lsb-release"
 
-# 3. Add Official Docker Repo
-echo -e "${GREEN}[2/5] Adding Docker GPG key & repository...${NC}"
-install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-chmod a+r /etc/apt/keyrings/docker.gpg
+echo -e "${GREEN}[2/6] Adding Docker repository...${NC}"
+run "install -m 0755 -d /etc/apt/keyrings"
+run "curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg"
+run "chmod a+r /etc/apt/keyrings/docker.gpg"
+# shellcheck disable=SC1091
+CODENAME="$(. /etc/os-release && echo "$VERSION_CODENAME")"
+run "printf '%s\n' 'deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian ${CODENAME} stable' > /etc/apt/sources.list.d/docker.list"
+run "apt-get update"
 
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+echo -e "${GREEN}[3/6] Installing Docker Engine + Compose...${NC}"
+run "apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin"
 
-apt-get update
+echo -e "${GREEN}[4/6] Applying daemon config with rollback safety...${NC}"
+if [ "$DRY_RUN" = false ] && [ -f /etc/docker/daemon.json ]; then
+  cp /etc/docker/daemon.json "/etc/docker/daemon.json.bak.$(date +%Y%m%d%H%M%S)"
+fi
 
-# 4. Install Docker Engine
-echo -e "${GREEN}[3/5] Installing Docker Engine + Compose...${NC}"
-apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-# 5. Optimize Docker Daemon (Crucial for Production)
-echo -e "${GREEN}[4/5] Configuring optimized daemon.json...${NC}"
-cat > /etc/docker/daemon.json <<EOF
+cat > /tmp/daemon.json <<'JSON'
 {
   "log-driver": "json-file",
   "log-opts": {
@@ -54,14 +90,43 @@ cat > /etc/docker/daemon.json <<EOF
       "size": 24
     }
   ],
+  "storage-driver": "overlay2",
   "ipv6": false
 }
-EOF
+JSON
 
-# 6. Enable & Start
-systemctl enable docker
-systemctl restart docker
+run "install -m 0644 /tmp/daemon.json /etc/docker/daemon.json"
 
-echo -e "${BLUE}[Netics] Docker installed successfully! 🚀${NC}"
-docker --version
-echo -e "Recommendation: Add your user to the docker group: usermod -aG docker \$USER"
+echo -e "${GREEN}[5/6] Installing profile packages...${NC}"
+case "$PROFILE" in
+  default)
+    run "apt-get install -y htop jq"
+    ;;
+  ai)
+    run "apt-get install -y htop jq nvtop"
+    ;;
+  media)
+    run "apt-get install -y htop jq ffmpeg"
+    ;;
+  dev)
+    run "apt-get install -y htop jq git make"
+    ;;
+  db)
+    run "apt-get install -y htop jq iotop"
+    ;;
+  *)
+    echo "Unsupported profile: $PROFILE"
+    exit 1
+    ;;
+esac
+
+echo -e "${GREEN}[6/6] Enabling Docker service...${NC}"
+run "systemctl enable docker"
+run "systemctl restart docker"
+
+echo -e "${BLUE}[Netics] Docker profile '${PROFILE}' installed successfully.${NC}"
+if [ "$DRY_RUN" = false ]; then
+  docker --version
+fi
+
+echo "Recommendation: add user to docker group -> usermod -aG docker <user>"

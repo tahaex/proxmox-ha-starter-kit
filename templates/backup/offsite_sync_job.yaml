@@ -1,0 +1,9 @@
+sync-job:
+  name: offsite-encrypted
+  source-store: production-backups
+  remote: offsite-pbs
+  remote-store: pbs-offsite
+  schedule: "daily 04:00"
+  owner: backup-sync@pbs
+  remove-vanished: true
+  encrypted: true
