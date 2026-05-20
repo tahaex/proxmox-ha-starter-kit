@@ -9,5 +9,6 @@ baseline:
   logging:
     centralize: true
   backup:
+    # Intended for PBS-scheduled backups (or equivalent orchestrated backup jobs).
     enabled: true
     frequency: daily

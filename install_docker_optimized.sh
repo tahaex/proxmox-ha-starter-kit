@@ -86,6 +86,7 @@ if [ "$DRY_RUN" = false ] && [ -f /etc/docker/daemon.json ]; then
 fi
 
 TMP_DAEMON_FILE="/etc/docker/daemon.json.tmp"
+# overlay2 is set explicitly for consistent behavior across supported hosts.
 cat > "$TMP_DAEMON_FILE" <<'JSON'
 {
   "log-driver": "json-file",

@@ -1,7 +1,9 @@
 scrape_configs:
   - job_name: proxmox
+    # Port 9221 expects a Proxmox VE exporter on each node.
     static_configs:
       - targets: ["pve1:9221", "pve2:9221", "pve3:9221"]
   - job_name: proxmox_backup_server
+    # Port 8007 is the PBS metrics/API endpoint.
     static_configs:
       - targets: ["pbs1:8007"]

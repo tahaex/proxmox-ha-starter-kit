@@ -12,6 +12,7 @@ for v in "$PRUNE_OK" "$VERIFY_OK" "$OFFSITE_OK"; do
   fi
 done
 
+# Weighting rationale: verification is highest impact for recoverability confidence.
 score=$(( PRUNE_OK * 30 + VERIFY_OK * 40 + OFFSITE_OK * 30 ))
 
 echo "== Backup Health Report =="
