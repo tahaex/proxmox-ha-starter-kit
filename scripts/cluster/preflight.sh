@@ -32,7 +32,7 @@ for cmd in corosync systemctl; do
   fi
 done
 
-free_gb=$(df --output=avail -BG / | tail -n1 | tr -dc '0-9')
+free_gb=$(df --output=avail -BG / | tail -n1 | awk '{print $1}' | tr -d 'G')
 if [ "${free_gb:-0}" -ge 20 ]; then
   print_result OK "Disk free space is ${free_gb}G"
 else

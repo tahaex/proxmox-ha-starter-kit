@@ -9,6 +9,7 @@ groups:
         annotations:
           summary: "Proxmox node down"
       - alert: BackupVerificationFailure
+        # 86400 seconds = 24 hours.
         expr: pbs_verify_last_success_timestamp_seconds < time() - 86400
         for: 10m
         labels:

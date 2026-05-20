@@ -16,7 +16,8 @@ datastore:
   encryption:
     mode: encrypt
     key-file: /etc/proxmox-backup/encryption-key.json
-    fingerprint: "a1:b2:c3:d4... (Replace with actual fingerprint)"
+    # Replace with the actual PBS encryption key fingerprint before production use.
+    fingerprint: "REPLACE_WITH_ACTUAL_FINGERPRINT"
 
 # 🔄 Verification Schedule
 verify-schedule:

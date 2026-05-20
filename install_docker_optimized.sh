@@ -68,7 +68,7 @@ else
   curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 fi
 run chmod a+r /etc/apt/keyrings/docker.gpg
-# shellcheck disable=SC1091 # /etc/os-release is a runtime system file not available in static analysis inputs.
+# shellcheck disable=SC1091
 CODENAME="$(. /etc/os-release && echo "$VERSION_CODENAME")"
 if [ "$DRY_RUN" = true ]; then
   echo -e "${YELLOW}[DRY-RUN]${NC} write /etc/apt/sources.list.d/docker.list"
@@ -85,7 +85,8 @@ if [ "$DRY_RUN" = false ] && [ -f /etc/docker/daemon.json ]; then
   cp /etc/docker/daemon.json "/etc/docker/daemon.json.bak.$(date +%Y%m%d%H%M%S)"
 fi
 
-cat > /tmp/daemon.json <<'JSON'
+TMP_DAEMON_FILE="/etc/docker/daemon.json.tmp"
+cat > "$TMP_DAEMON_FILE" <<'JSON'
 {
   "log-driver": "json-file",
   "log-opts": {
@@ -103,7 +104,10 @@ cat > /tmp/daemon.json <<'JSON'
 }
 JSON
 
-run install -m 0644 /tmp/daemon.json /etc/docker/daemon.json
+run install -m 0644 "$TMP_DAEMON_FILE" /etc/docker/daemon.json
+if [ "$DRY_RUN" = false ]; then
+  rm -f "$TMP_DAEMON_FILE"
+fi
 
 echo -e "${GREEN}[5/6] Installing profile packages...${NC}"
 case "$PROFILE" in
