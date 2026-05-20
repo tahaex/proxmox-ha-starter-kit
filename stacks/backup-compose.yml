@@ -1,0 +1,7 @@
+services:
+  restic:
+    image: restic/restic:0.17.3
+    environment:
+      - RESTIC_REPOSITORY=${RESTIC_REPOSITORY:?set-in-env}
+      - RESTIC_PASSWORD=${RESTIC_PASSWORD:?set-in-env}
+    command: snapshots

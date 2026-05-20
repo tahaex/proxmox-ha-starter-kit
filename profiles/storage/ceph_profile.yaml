@@ -1,0 +1,12 @@
+profile: ceph-ha
+requirements:
+  nodes: 3
+  dedicated_network: true
+  osds_per_node: 1
+settings:
+  pool_size: 3
+  min_size: 2
+  failure_domain: host
+notes:
+  - Use dedicated storage VLAN
+  - Keep MON and OSD daemons balanced across nodes

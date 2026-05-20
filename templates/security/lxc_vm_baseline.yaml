@@ -1,0 +1,14 @@
+baseline:
+  os_updates: auto
+  ssh:
+    password_authentication: false
+    root_login: prohibit-password
+  firewall:
+    enabled: true
+    default_inbound: deny
+  logging:
+    centralize: true
+  backup:
+    # Intended for PBS-scheduled backups (or equivalent orchestrated backup jobs).
+    enabled: true
+    frequency: daily
