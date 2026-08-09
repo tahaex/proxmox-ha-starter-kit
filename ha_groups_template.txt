@@ -1,0 +1,9 @@
+Essential Services (Migrate First):
+  - Database Servers
+  - n8n / Workflow Engines
+  - Reverse Proxies
+
+Background Services (Migrate Last):
+  - Backup Jobs
+  - Dev/Test Containers
+  - Monitoring Agents

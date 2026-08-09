@@ -62,18 +62,27 @@ run apt-get install -y ca-certificates curl gnupg lsb-release
 
 echo -e "${GREEN}[2/6] Adding Docker repository...${NC}"
 run install -m 0755 -d /etc/apt/keyrings
+if [ ! -f /etc/os-release ]; then
+  echo "Cannot detect OS: /etc/os-release not found"
+  exit 1
+fi
+# shellcheck disable=SC1091
+. /etc/os-release
+if [ "$ID" != "debian" ] && [ "$ID" != "ubuntu" ]; then
+  echo "Unsupported distribution: $ID"
+  exit 1
+fi
 if [ "$DRY_RUN" = true ]; then
-  echo -e "${YELLOW}[DRY-RUN]${NC} curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg"
+  echo -e "${YELLOW}[DRY-RUN]${NC} curl -fsSL https://download.docker.com/linux/${ID}/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg"
 else
-  curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  curl -fsSL "https://download.docker.com/linux/${ID}/gpg" | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 fi
 run chmod a+r /etc/apt/keyrings/docker.gpg
-# shellcheck disable=SC1091
-CODENAME="$(. /etc/os-release && echo "$VERSION_CODENAME")"
+CODENAME="${VERSION_CODENAME:-}"
 if [ "$DRY_RUN" = true ]; then
   echo -e "${YELLOW}[DRY-RUN]${NC} write /etc/apt/sources.list.d/docker.list"
 else
-  printf '%s\n' "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian ${CODENAME} stable" > /etc/apt/sources.list.d/docker.list
+  printf '%s\n' "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/${ID} ${CODENAME} stable" > /etc/apt/sources.list.d/docker.list
 fi
 run apt-get update
 
